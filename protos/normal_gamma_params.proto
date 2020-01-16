@@ -1,0 +1,6 @@
+message NormalGammaParams {
+    double mu0 = 1;
+    double a = 2;
+    double b = 3;
+    double lam_ = 4;
+  }
