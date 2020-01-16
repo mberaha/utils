@@ -1,8 +1,9 @@
 #ifndef UTILS_CPP_RECORDIO_HPP
 #define UTILS_CPP_RECORDIO_HPP
 
-#include <string>
 #include <deque>
+#include <fstream>
+#include <string>
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -14,9 +15,8 @@
 
 template< template<typename ... > class Container, typename T>
 bool writeManyToFile(const Container<T>& messages, std::string filename) {
-    int outfd = open(filename.c_str(), O_CREAT | O_WRONLY  | O_TRUNC);
+    int outfd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0777);
     google::protobuf::io::FileOutputStream fout(outfd);
-    int cnt = 0;
     bool success;
     for (auto msg: messages) {
         success = google::protobuf::util::SerializeDelimitedToZeroCopyStream(
@@ -25,7 +25,6 @@ bool writeManyToFile(const Container<T>& messages, std::string filename) {
             std::cout << "Writing Failed" << std::endl;
             break;
         }
-        cnt += 1;
     }
     fout.Close();
     close(outfd);
@@ -38,7 +37,9 @@ bool writeManyToFile(const Container<T>& messages, std::string filename) {
  */
 template <typename T>
 std::deque<T> readManyFromFile(std::string filename) {
-    int infd = open(filename.c_str(), O_RDONLY);
+    int infd = open(filename.c_str(), O_RDWR);
+    if (infd == -1)
+        std::cout << "errno: " << strerror(errno) << std::endl;
 
     google::protobuf::io::FileInputStream fin(infd);
     bool keep = true;
@@ -56,6 +57,22 @@ std::deque<T> readManyFromFile(std::string filename) {
     close(infd);
     return out;
 }
+
+
+/*
+ * Load a proto from a text file (human readable format)
+ */
+ template <typename T>
+ T loadTextProto(std::string filename) {
+     std::ifstream ifs(filename);
+     google::protobuf::io::IstreamInputStream iis(&ifs);
+     T out;
+     auto success = google::protobuf::TextFormat::Parse(&iis, &out);
+     if (! success)
+         std::cout << "An error occurred in 'loadTextProto'; success: " <<
+         success << std::endl;
+     return out;
+ }
 
 
 #endif // UTILS_CPP_RECORDIO_HPP
