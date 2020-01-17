@@ -41,3 +41,35 @@ double marginalLogLikeNormalGamma(
     out -= M_PI;
     return out;
 }
+
+std::tuple<Eigen::VectorXd, Eigen::MatrixXd> linearRegressionUpdate(
+        Eigen::VectorXd y, Eigen::MatrixXd X, Eigen::VectorXd betaMean,
+        Eigen::MatrixXd betaPrec) {
+
+    // compute posterior parameters for beta
+    int p_size = betaMean.size();
+    Eigen::VectorXd postMean(p_size);
+    Eigen::MatrixXd postPrec(p_size, p_size);
+
+    postPrec = X.transpose() * X + betaPrec;
+    postMean = postPrec.ldlt().solve(
+        X.transpose() * reg_data + betaPrec * betaMean);
+
+    return std::make_tuple(postMean, postPrec);
+}
+
+std::tuple<Eigen::VectorXd, Eigen::MatrixXd> heteroSchedLinearRegressionUpdate(
+        Eigen::VectorXd y, Eigen::MatrixXd X, Eigen::VectorXd betaMean,
+        Eigen::MatrixXd betaPrec, Eigen::VectorXd mu,
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic> V) {
+
+    int p_size = betaMean.size();
+    Eigen::VectorXd postMean(p_size);
+    Eigen::MatrixXd postPrec(p_size, p_size);
+
+    postPrec = X.transpose() * V * X + betaPrec;
+    postMean = postPrec.ldlt().solve(
+        X.transpose * V * (y - mu) + betaPrec * betaMean);
+
+    return std::make_tuple(postMean, postPrec);
+}
