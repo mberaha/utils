@@ -1,5 +1,7 @@
 #include "updates.hpp"
 
+namespace updates {
+
 std::vector<double> normalGammaUpdate(
         std::vector<double> data, double priorMean, double priorA,
         double priorB, double priorLambda) {
@@ -28,20 +30,6 @@ std::vector<double> normalGammaUpdate(
     return std::vector<double>{postMean, postA, postB, postLambda};
 }
 
-
-double marginalLogLikeNormalGamma(
-        double datum, double mean, double a, double b, double lambda) {
-
-    std::vector<double> params = normalGammaUpdate(
-        std::vector<double>{datum}, mean, a, b, lambda);
-
-    double out = std::lgamma(params[1]) - std::lgamma(a);
-    out += a * std::log(b) - params[1] * std::log(params[2]);
-    out += 0.5 * (std::log(lambda) - std::log(params[3]));
-    out -= M_PI;
-    return out;
-}
-
 std::tuple<Eigen::VectorXd, Eigen::MatrixXd> linearRegressionUpdate(
         Eigen::VectorXd y, Eigen::MatrixXd X, Eigen::VectorXd betaMean,
         Eigen::MatrixXd betaPrec) {
@@ -53,7 +41,7 @@ std::tuple<Eigen::VectorXd, Eigen::MatrixXd> linearRegressionUpdate(
 
     postPrec = X.transpose() * X + betaPrec;
     postMean = postPrec.ldlt().solve(
-        X.transpose() * reg_data + betaPrec * betaMean);
+        X.transpose() * X + betaPrec * betaMean);
 
     return std::make_tuple(postMean, postPrec);
 }
@@ -61,7 +49,7 @@ std::tuple<Eigen::VectorXd, Eigen::MatrixXd> linearRegressionUpdate(
 std::tuple<Eigen::VectorXd, Eigen::MatrixXd> heteroSchedLinearRegressionUpdate(
         Eigen::VectorXd y, Eigen::MatrixXd X, Eigen::VectorXd betaMean,
         Eigen::MatrixXd betaPrec, Eigen::VectorXd mu,
-        Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic> V) {
+        Eigen::VectorXd V) {
 
     int p_size = betaMean.size();
     Eigen::VectorXd postMean(p_size);
@@ -69,7 +57,9 @@ std::tuple<Eigen::VectorXd, Eigen::MatrixXd> heteroSchedLinearRegressionUpdate(
 
     postPrec = X.transpose() * V * X + betaPrec;
     postMean = postPrec.ldlt().solve(
-        X.transpose * V * (y - mu) + betaPrec * betaMean);
+        X.transpose() * V.asDiagonal() * (y - mu) + betaPrec * betaMean);
 
     return std::make_tuple(postMean, postPrec);
+}
+
 }

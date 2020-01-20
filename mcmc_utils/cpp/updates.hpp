@@ -9,6 +9,8 @@
 
 #include <Eigen/Dense>
 
+
+namespace updates {
 /*
  * Computes the posterior parameters for a model
  *     x_1, ... x_n ~ N(mu, 1 / tau)
@@ -20,17 +22,6 @@
 std::vector<double> normalGammaUpdate(
     std::vector<double> data, double priorMean, double priorA,
     double priorB, double priorLambda);
-
-
-/*
- * Evaluates the marginal log likelihood of a model
- *           x_1 ~ N(mu, 1 / tau)
- *     \mu | tau ~ N(mu0, 1 / (lambda * tau))
- *     \tau ~ Gamma(a, b)
- * for a single datum.
- */
-double marginalLogLikeNormalGamma(
-    double datum, double mean, double a, double b, double lambda);
 
 
 /*
@@ -72,6 +63,8 @@ std::tuple<Eigen::VectorXd, Eigen::MatrixXd> simpleLinearRegressionUpdate(
 std::tuple<Eigen::VectorXd, Eigen::MatrixXd> heteroSchedLinearRegressionUpdate(
     Eigen::VectorXd y, Eigen::MatrixXd X, Eigen::VectorXd betaMean,
     Eigen::MatrixXd betaPrec, Eigen::VectorXd mu,
-    Eigen::DiagonalMatrix<double, Eigen::Dynamic, Eigen::Dynamic> V);
+    Eigen::VectorXd V);
+
+}
 
 #endif

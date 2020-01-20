@@ -4,6 +4,9 @@
 #include <random>
 
 #include <stan/math/prim/mat.hpp>
+#include "updates.hpp"
+
+namespace distributions {
 
 /*
  * Generate values from a truncated normal distribution using rejection
@@ -23,5 +26,19 @@ double trunc_normal_rng(
  */
 double trunc_normal_lpdf(
     double x, double mu, double sigma, double lower, double upper);
+
+
+/*
+ * Evaluates the marginal log likelihood of a model
+ *           x_1 ~ N(mu, 1 / tau)
+ *     \mu | tau ~ N(mu0, 1 / (lambda * tau))
+ *     \tau ~ Gamma(a, b)
+ * for a single datum.
+ */
+double marginal_normal_gamma_lpdf(
+    double datum, double mean, double a, double b, double lambda);
+
+}
+
 
 #endif
