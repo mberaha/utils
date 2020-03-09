@@ -16,14 +16,20 @@ class stirlingmemoizer {
    int maxM;
 
  public:
-   template <class F>
-   stirlingmemoizer(F f);
+   stirlingmemoizer();
 
-   template <class F>
-   void addRows(F f, int newMaxN);
+   void addRows(int newMaxN);
 
-   template <class F>
-   const unsigned long int& operator()(F f, int n, int m);
+   const unsigned long int& operator()(int n, int m);
+
+   void print() {
+     for (int i = 0; i < maxN; i++) {
+           for (int j=0; j < i+1; j++) {
+               std::cout << memoMatrix[i][j] << ", ";
+           }
+           std::cout << std::endl;
+       }
+   }
 
 };
 
@@ -31,14 +37,20 @@ unsigned long int stirling(int n, int m);
 
 namespace {
   unsigned long int stirling_(int n, int m) {
-    if (((n == 0) & (m == 0)) ||( (n == 1) & (m == 1)))
-      return 1;
-    else if ((n > 0) & (m == 0))
-      return 0;
-    else if (m > n)
-      return 0;
+    unsigned long int out;
+    if (((n == 0) & (m == 0)) ||( (n == 1) & (m == 1))) {
+      out = 1;
+    }
+    else if ((n > 0) & (m == 0)) {
+      out = 0;
+    }
+    else if (m > n) {
+      out = 0;
+    }
     else
-      return stirling(n-1, m-1) + (n-1) * stirling(n-1, m);
+      out = stirling(n-1, m-1) + (n-1) * stirling(n-1, m);
+    
+    return out;
   }
 }
 
