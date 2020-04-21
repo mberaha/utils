@@ -38,4 +38,30 @@ double marginal_normal_gamma_lpdf(
     return out;
 }
 
+double multi_normal_prec_lpdf(
+    const VectorXd &x, const VectorXd &mu, const PrecMat &sigma)
+{
+    double out = sigma.get_log_det();
+    out -= (sigma.get_cho_factor_eval() * (x - mu)).squaredNorm();
+    return 0.5 * out;
+}
+
+double multi_normal_prec_lpdf(
+    const std::vector<VectorXd> &x, const VectorXd &mu, const PrecMat &sigma)
+{
+    int n = x.size();
+    double out = sigma.get_log_det() * n;
+
+    const MatrixXd &cho_sigma = sigma.get_cho_factor_eval();
+
+    std::vector<double> loglikes(n);
+    for (int i = 0; i < n; i++)
+    {
+        loglikes[i] = (cho_sigma * (x[i] - mu)).squaredNorm();
+    }
+
+    out -= std::accumulate(loglikes.begin(), loglikes.end(), 0.0);
+
+    return 0.5 * out;
+}
 }

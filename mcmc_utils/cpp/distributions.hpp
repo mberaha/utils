@@ -38,6 +38,20 @@ double trunc_normal_lpdf(
 double marginal_normal_gamma_lpdf(
     double datum, double mean, double a, double b, double lambda);
 
+
+/*
+ * Evaluates the log likelihood for the model
+ *      X ~ N(\mu, \sigma^{-1})
+*/
+double multi_normal_prec_lpdf(
+    const VectorXd &x, const VectorXd &mu, const PrecMat &sigma);
+
+/*
+ * Evaluates the log likelihood for the model
+ *      X_1, \ldots, X_n ~ N(\mu, \sigma^{-1})
+*/
+double multi_normal_prec_lpdf(
+    const std::vector<VectorXd> &x, const VectorXd &mu, const PrecMat &sigma);
 }
 
 
