@@ -3,7 +3,7 @@
 PrecMat::PrecMat(const MatrixXd &prec) : prec(prec)
 {
     cho_factor = LLT<MatrixXd>(prec);
-    cho_factor_eval = cho_factor.matrixL();
+    cho_factor_eval = cho_factor.matrixL().transpose();
     const VectorXd &diag = cho_factor_eval.diagonal();
     log_det = 2 * log(diag.array()).sum();
 }
